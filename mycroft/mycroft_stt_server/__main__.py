@@ -121,15 +121,15 @@ class FileConsumer(Thread):
 
 
 
-  def audio_to_stt(self):
-    self.stt = STTFactory.create()
-    audio = read_wave_file(FILENAME)
-    text = self.stt.execute(audio).lower().strip()
-    self.emitter.on("stt.request", self.handle_external_request)
-    self.emitter.emit(
-      Message("recognizer_loop:utterance", 
-      {"utterances": [text]},
-      {"source": "wav_client"}))
+#  def audio_to_stt(self):
+#    self.stt = STTFactory.create()
+#    audio = read_wave_file(FILENAME)
+#    text = self.stt.execute(audio).lower().strip()
+#    self.emitter.on("stt.request", self.handle_external_request)
+#    self.emitter.emit(
+#      Message("recognizer_loop:utterance", 
+#      {"utterances": [text]},
+#      {"source": "wav_client"}))
 
   def handle_external_request(self, message):
     file = message.data.get("File")
