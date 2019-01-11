@@ -93,7 +93,7 @@ class FileConsumer(Thread):
     self.emitter = emitter
 
   def audio_to_stt(self):
-    self.stt = stt.STTFactory.create()
+    self.stt = STTFactory.create()
     audio = read_wave_file(FILENAME)
     text = self.stt.execute(audio).lower().strip()
     self.emitter.on("stt.request", handle_external_request)
