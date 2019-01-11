@@ -96,7 +96,7 @@ class FileConsumer(Thread):
     self.stt = STTFactory.create()
     audio = read_wave_file(FILENAME)
     text = self.stt.execute(audio).lower().strip()
-    self.emitter.on("stt.request", handle_external_request)
+    self.emitter.on("stt.request", self.handle_external_request)
     self.emitter.emit(
       Message("recognizer_loop:utterance", 
       {"utterances": [text]},
