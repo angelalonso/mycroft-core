@@ -7,9 +7,9 @@ import unittest
 import socket
 import threading
 
-from server import *
+from __init__ import *
 
-HOST = '0.0.0.0'
+HOST = '192.168.1.46'
 PORT = 8045
 # Using an image for tests, though this will primarily be used for audio
 FILENAME = 'image.jpg'
