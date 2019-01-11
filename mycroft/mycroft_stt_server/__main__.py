@@ -31,7 +31,7 @@ from os import remove
 
 HOST = '0.0.0.0'
 PORT = 8045
-FILENAME = 'received.tmp'
+FILENAME = '/home/pi/mycroft-core/mycroft/mycroft_stt_server/received.wav'
 CHUNK_SIZE = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 2

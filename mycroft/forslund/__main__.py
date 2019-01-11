@@ -53,7 +53,7 @@ def read_wave_file(wave_file_path):
 
 
 class FileConsumer(Thread):
-    def __init__(self, file_location='/tmp/mycroft_in.wav', emitter=None):
+    def __init__(self, file_location='/home/pi/mycroft-core/mycroft/mycroft_stt_server/received.wav', emitter=None):
         super(FileConsumer, self).__init__()
         self.path = file_location
         self.stop_event = Event()
@@ -66,6 +66,7 @@ class FileConsumer(Thread):
         self.emitter.on("stt.request", self.handle_external_request)
         while not self.stop_event.is_set():
             if exists(self.path):
+                LOG.info("################ FOUND THE FILE ###############")
                 audio = read_wave_file(self.path)
                 text = self.stt.execute(audio).lower().strip()
                 self.emitter.emit(
@@ -108,7 +109,7 @@ def main():
     event_thread = Thread(target=connect)
     event_thread.setDaemon(True)
     event_thread.start()
-    config = config.get("wav_client", {"path": "/tmp/mycroft_in.wav"})
+    config = config.get("wav_client", {"path": "/home/pi/mycroft-core/mycroft/mycroft_stt_server/received.wav"})
     try:
         file_consumer = FileConsumer(file_location=config["path"], emitter=ws)
         file_consumer.start()
