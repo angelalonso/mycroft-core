@@ -21,6 +21,7 @@ import speech_recognition as sr
 from threading import Thread, Lock, Event
 from mycroft.stt import STTFactory
 from mycroft.messagebus.client.ws import WebsocketClient
+from mycroft.messagebus.message import Message
 
 
 HOST = '0.0.0.0'
