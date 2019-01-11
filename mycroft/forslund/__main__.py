@@ -115,8 +115,8 @@ def main():
         file_consumer.start()
         while True:
             time.sleep(100)
-    except KeyboardInterrupt, e:
-        LOG.exception(e)
+    except KeyboardInterrupt:
+        LOG.exception("Manual Key interruption")
         file_consumer.stop()
         file_consumer.join()
         sys.exit()
