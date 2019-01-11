@@ -33,6 +33,12 @@ CHANNELS = 2
 RATE = 44100
 RECORD_SECONDS = 5
 
+ws = None
+
+config = ConfigurationManager.get()
+
+def connect():
+    ws.run_forever()
 
 def server_up():
   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -64,6 +70,7 @@ def server_up():
 def transmission_end(conn, p, frames):
   conn.close()
   global ws
+  global config
   ws = WebsocketClient()
   wf = wave.open(FILENAME, 'wb')
   wf.setnchannels(CHANNELS)
@@ -71,8 +78,27 @@ def transmission_end(conn, p, frames):
   wf.setframerate(RATE)
   wf.writeframes(b''.join(frames))
   wf.close()
-  fc = FileConsumer(file_location=FILENAME, emitter=ws)
-  fc.audio_to_stt()
+  stt_as_service()
+  #fc = FileConsumer(file_location=FILENAME, emitter=ws)
+  #fc.audio_to_stt()
+
+def stt_as_service():
+  config = ConfigurationManager.get()
+  ConfigurationManager.init(ws)
+  event_thread = Thread(target=connect)
+  event_thread.setDaemon(True)
+  event_thread.start()
+  config = config.get("wav_client", {"path": FILENAME})
+  try:
+    file_consumer = FileConsumer(file_location=config["path"], emitter=ws)
+    file_consumer.start()
+    while True:
+      time.sleep(100)
+  except KeyboardInterrupt, e:
+    LOG.exception(e)
+    file_consumer.stop()
+    file_consumer.join()
+    sys.exit()
 
 def read_wave_file(wave_file_path):
   '''
@@ -92,6 +118,8 @@ class FileConsumer(Thread):
     self.stop_event = Event()
     self.stt = None
     self.emitter = emitter
+
+
 
   def audio_to_stt(self):
     self.stt = STTFactory.create()
