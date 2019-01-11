@@ -19,9 +19,14 @@ import wave
 import speech_recognition as sr
 
 from threading import Thread, Lock, Event
-from mycroft.stt import STTFactory
 from mycroft.messagebus.client.ws import WebsocketClient
 from mycroft.messagebus.message import Message
+import sys
+from os.path import exists
+from mycroft.stt import STTFactory
+from mycroft.configuration import ConfigurationManager
+from mycroft.util.log import LOG
+from os import remove
 
 
 HOST = '0.0.0.0'
