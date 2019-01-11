@@ -94,7 +94,7 @@ def stt_as_service():
     file_consumer.start()
     while True:
       time.sleep(100)
-  except KeyboardInterrupt, e:
+  except (KeyboardInterrupt, e):
     LOG.exception(e)
     file_consumer.stop()
     file_consumer.join()
