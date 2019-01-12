@@ -36,6 +36,9 @@ config = ConfigurationManager.get()
 def connect():
     ws.run_forever()
              
+def disconnect():
+    ws.close()
+             
          
 def read_wave_file(wave_file_path):
     '''      
@@ -53,7 +56,7 @@ def read_wave_file(wave_file_path):
 HOST = '0.0.0.0'
 PORT = 8045
 # TODO: use the tmp folder, avoid hardcoded home folder
-FILENAME = '/home/pi/mycroft-core/mycroft/mycroft_stt_server/received.wav'
+FILENAME = '/home/pi/mycroft-core/mycroft/stt_service/received.wav'
 CHUNK_SIZE = 1024
 FORMAT = pyaudio.paInt16
 # TODO: do we need two channels?
@@ -112,6 +115,7 @@ def transmission_end(conn, p, frames):
     file_consumer.start()         
     file_consumer.stop()          
     file_consumer.join()          
+    ws.close()
     #while True:      
     #  time.sleep(100)           
   except KeyboardInterrupt:         
@@ -124,7 +128,7 @@ def transmission_end(conn, p, frames):
 
 ## Copied from Forslund
 class FileConsumer(Thread):
-  def __init__(self, file_location='/home/pi/mycroft-core/mycroft/mycroft_stt_server/received.wav', emitter=None):
+  def __init__(self, file_location=FILENAME, emitter=None):
     super(FileConsumer, self).__init__()
     self.path = file_location
     self.stop_event = Event()
@@ -143,39 +147,6 @@ class FileConsumer(Thread):
              {"utterances": [text]},
              {"source": "wav_client"}))
     remove(self.path)
-#        self.emitter.on("stt.request", self.handle_external_request)
-#        while not self.stop_event.is_set():
-#            if exists(self.path):
-#                LOG.debug("New wav file found")
-#                audio = read_wave_file(self.path)
-#                text = self.stt.execute(audio).lower().strip()
-#                LOG.info("Speech To Text: " + text)
-#                self.emitter.emit(
-#                    Message("recognizer_loop:utterance", 
-#                           {"utterances": [text]},
-#                           {"source": "wav_client"}))
-#                remove(self.path)
-#            time.sleep(0.5)
-
-#    def handle_external_request(self, message):
-#        file = message.data.get("File")
-#        if self.stt is None:
-#            error = "STT initialization failure"
-#            self.emitter.emit(
-#                Message("stt.error", {"error": error}))
-#        elif not file:
-#            error = "No file provided for transcription"
-#            self.emitter.emit(
-#                Message("stt.error", {"error": error}))
-#        elif not exists(file):
-#            error = "Invalid file path provided for transcription"
-#            self.emitter.emit(
-#                Message("stt.error", {"error": error}))
-#        else:
-#            audio = read_wave_file(file)
-#            transcript = self.stt.execute(audio).lower().strip()
-#            self.emitter.emit(Message("stt.reply",
-#                                      {"transcription": transcript}))
 
   def stop(self):
     self.stop_event.set()
