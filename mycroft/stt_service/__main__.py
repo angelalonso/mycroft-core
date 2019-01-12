@@ -110,8 +110,10 @@ def transmission_end(conn, p, frames):
   try:  
     file_consumer = FileConsumer(file_location=config["path"], emitter=ws)
     file_consumer.start()         
-    while True:      
-      time.sleep(100)           
+    file_consumer.stop()          
+    file_consumer.join()          
+    #while True:      
+    #  time.sleep(100)           
   except KeyboardInterrupt:         
     LOG.exception("Manual Key interruption")
     file_consumer.stop()          
