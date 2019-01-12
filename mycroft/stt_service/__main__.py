@@ -84,7 +84,8 @@ def service_up():
         if not data_in: 
           print('Transfer ended')
           transmission_end(conn, p, frames)
-#          break
+          frames = []
+          break
         frames.append(data_in)
       except (socket.error):
         print('Client connection closed', addr)
@@ -100,6 +101,7 @@ def transmission_end(conn, p, frames):
   wf.setframerate(RATE)
   wf.writeframes(b''.join(frames))
   wf.close()
+  frames = []
   ## Copied from Forslund
   global ws
   global config
@@ -115,7 +117,6 @@ def transmission_end(conn, p, frames):
     file_consumer.start()         
     file_consumer.stop()          
     file_consumer.join()          
-    ws.close()
     #while True:      
     #  time.sleep(100)           
   except KeyboardInterrupt:         
