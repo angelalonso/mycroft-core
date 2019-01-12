@@ -28,6 +28,27 @@ from mycroft.configuration import ConfigurationManager
 from mycroft.util.log import LOG
 from os import remove
 
+## Copied from Forslund
+ws = None
+config = ConfigurationManager.get()
+                                  
+         
+def connect():
+    ws.run_forever()
+             
+         
+def read_wave_file(wave_file_path):
+    '''      
+    reads the wave file at provided path and return the expected
+    Audio format   
+    '''      
+    # use the audio file as the audio source
+    r = sr.Recognizer()           
+    with sr.AudioFile(wave_file_path) as source:
+        audio = r.record(source)  
+    return audio   
+## End of Copied from Forslund
+
 
 HOST = '0.0.0.0'
 PORT = 8045
@@ -76,6 +97,81 @@ def transmission_end(conn, p, frames):
   wf.setframerate(RATE)
   wf.writeframes(b''.join(frames))
   wf.close()
+  ## Copied from Forslund
+  global ws
+  global config
+  ws = WebsocketClient()
+  config = ConfigurationManager.get()
+  ConfigurationManager.init(ws)     
+  event_thread = Thread(target=connect)
+  event_thread.setDaemon(True)      
+  event_thread.start() 
+  config = config.get("wav_client", {"path": FILENAME})
+  try:  
+    file_consumer = FileConsumer(file_location=config["path"], emitter=ws)
+    file_consumer.start()         
+    while True:      
+      time.sleep(100)           
+  except KeyboardInterrupt:         
+    LOG.exception("Manual Key interruption")
+    file_consumer.stop()          
+    file_consumer.join()          
+    sys.exit()       
+  ## End of Copied from Forslund
+
+
+## Copied from Forslund
+class FileConsumer(Thread):
+    def __init__(self, file_location='/home/pi/mycroft-core/mycroft/mycroft_stt_server/received.wav', emitter=None):
+        super(FileConsumer, self).__init__()
+        self.path = file_location
+        self.stop_event = Event()
+        self.stt = None
+        self.emitter = emitter
+
+    def run(self):
+        LOG.info("Creating SST interface")
+        self.stt = STTFactory.create()
+        self.emitter.on("stt.request", self.handle_external_request)
+        while not self.stop_event.is_set():
+            if exists(self.path):
+                LOG.info("################ FOUND THE FILE ###############")
+                audio = read_wave_file(self.path)
+                text = self.stt.execute(audio).lower().strip()
+                LOG.info("####")
+                LOG.info(text)
+                LOG.info("####")
+                self.emitter.emit(
+                    Message("recognizer_loop:utterance", 
+                           {"utterances": [text]},
+                           {"source": "wav_client"}))
+                remove(self.path)
+            time.sleep(0.5)
+
+    def handle_external_request(self, message):
+        file = message.data.get("File")
+        if self.stt is None:
+            error = "STT initialization failure"
+            self.emitter.emit(
+                Message("stt.error", {"error": error}))
+        elif not file:
+            error = "No file provided for transcription"
+            self.emitter.emit(
+                Message("stt.error", {"error": error}))
+        elif not exists(file):
+            error = "Invalid file path provided for transcription"
+            self.emitter.emit(
+                Message("stt.error", {"error": error}))
+        else:
+            audio = read_wave_file(file)
+            transcript = self.stt.execute(audio).lower().strip()
+            self.emitter.emit(Message("stt.reply",
+                                      {"transcription": transcript}))
+
+    def stop(self):
+        self.stop_event.set()
+
+## End of Copied from Forslund
 
 
 if __name__ == '__main__':
