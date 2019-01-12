@@ -16,7 +16,8 @@ apt-get install python3 python3-pip libatlas-base-dev
 - OK - Anything coming after the init of streaming is saved into a file
 - OK - When the read of streaming is detected, the server confirms
 - OK - The streaming comes from a microphone and not the read of a file
-- After the streaming is ended, the saved file is put to good use
+- OK - After the streaming is ended, the saved file is put to good use
+- After the saved file has been sent forward, we keep listening for new streamings
 - The server responds to a healthcheck call with OK
 - In case of a disconnection in the middle of the transfer, the server asks for retransmission 3 times, then discards
 
