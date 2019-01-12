@@ -132,7 +132,7 @@ class FileConsumer(Thread):
     def run(self):
         LOG.info("Creating STT interface")
         self.stt = STTFactory.create()
-        self.emitter.on("stt.request", self.handle_external_request)
+#        self.emitter.on("stt.request", self.handle_external_request)
         while not self.stop_event.is_set():
             if exists(self.path):
                 LOG.debug("New wav file found")
@@ -146,25 +146,25 @@ class FileConsumer(Thread):
                 remove(self.path)
             time.sleep(0.5)
 
-    def handle_external_request(self, message):
-        file = message.data.get("File")
-        if self.stt is None:
-            error = "STT initialization failure"
-            self.emitter.emit(
-                Message("stt.error", {"error": error}))
-        elif not file:
-            error = "No file provided for transcription"
-            self.emitter.emit(
-                Message("stt.error", {"error": error}))
-        elif not exists(file):
-            error = "Invalid file path provided for transcription"
-            self.emitter.emit(
-                Message("stt.error", {"error": error}))
-        else:
-            audio = read_wave_file(file)
-            transcript = self.stt.execute(audio).lower().strip()
-            self.emitter.emit(Message("stt.reply",
-                                      {"transcription": transcript}))
+#    def handle_external_request(self, message):
+#        file = message.data.get("File")
+#        if self.stt is None:
+#            error = "STT initialization failure"
+#            self.emitter.emit(
+#                Message("stt.error", {"error": error}))
+#        elif not file:
+#            error = "No file provided for transcription"
+#            self.emitter.emit(
+#                Message("stt.error", {"error": error}))
+#        elif not exists(file):
+#            error = "Invalid file path provided for transcription"
+#            self.emitter.emit(
+#                Message("stt.error", {"error": error}))
+#        else:
+#            audio = read_wave_file(file)
+#            transcript = self.stt.execute(audio).lower().strip()
+#            self.emitter.emit(Message("stt.reply",
+#                                      {"transcription": transcript}))
 
     def stop(self):
         self.stop_event.set()
