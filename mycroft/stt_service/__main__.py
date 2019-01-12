@@ -62,7 +62,7 @@ RATE = 44100
 RECORD_SECONDS = 5
 
 
-def server_up():
+def service_up():
   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   s.bind((HOST, PORT))
   s.listen(1)
@@ -130,17 +130,15 @@ class FileConsumer(Thread):
         self.emitter = emitter
 
     def run(self):
-        LOG.info("Creating SST interface")
+        LOG.info("Creating STT interface")
         self.stt = STTFactory.create()
         self.emitter.on("stt.request", self.handle_external_request)
         while not self.stop_event.is_set():
             if exists(self.path):
-                LOG.info("################ FOUND THE FILE ###############")
+                LOG.debug("New wav file found")
                 audio = read_wave_file(self.path)
                 text = self.stt.execute(audio).lower().strip()
-                LOG.info("####")
-                LOG.info(text)
-                LOG.info("####")
+                LOG.info("Speech To Text: " + text)
                 self.emitter.emit(
                     Message("recognizer_loop:utterance", 
                            {"utterances": [text]},
@@ -175,4 +173,4 @@ class FileConsumer(Thread):
 
 
 if __name__ == '__main__':
-  server_up()
+  service_up()
