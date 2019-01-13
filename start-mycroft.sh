@@ -27,7 +27,7 @@ function help() {
     echo "usage: ${script} [command] [params]"
     echo
     echo "Services:"
-    echo "  all                      runs core services: bus, audio, skills, voice"
+    echo "  all                      runs core services: bus, audio, skills, voice, stt service"
     echo "  debug                    runs core services, then starts the CLI"
     echo
     echo "Services:"
@@ -35,6 +35,7 @@ function help() {
     echo "  bus                      the messagebus service"
     echo "  skills                   the skill service"
     echo "  voice                    voice capture service"
+    echo "  stt_service              external access to internal STT service"
     # echo "  wifi                     wifi setup service"
     echo "  enclosure                mark_1 enclosure service"
     echo
@@ -63,6 +64,7 @@ function name-to-script-path() {
         "skills")            _module="mycroft.skills" ;;
         "audio")             _module="mycroft.audio" ;;
         "voice")             _module="mycroft.client.speech" ;;
+        "stt_service")       _module="mycroft.stt_service" ;;
         "cli")               _module="mycroft.client.text" ;;
         "audiotest")         _module="mycroft.util.audio_test" ;;
         "audioaccuracytest") _module="mycroft.audio-accuracy-test" ;;
@@ -127,6 +129,12 @@ function launch-background() {
         echo "         measures.  You are responsible for protecting the local port"
         echo "         8181 with a firewall as appropriate."
     fi
+    # Security warning/reminder for the user
+    if [[ "${1}" == "stt_service" ]] ; then
+        echo "CAUTION: The Mycroft STT Service is an open websocket with no built-in security"
+        echo "         measures.  You are responsible for protecting the local port"
+        echo "         8045 with a firewall as appropriate."
+    fi
 
     # Launch process in background, sending logs to standard location
     python3 -m ${_module} $_params >> /var/log/mycroft/${1}.log 2>&1 &
@@ -138,6 +146,7 @@ function launch-all() {
     launch-background skills
     launch-background audio
     launch-background voice
+    launch-background stt_service
 
     # Determine platform type
     if [[ -r /etc/mycroft/mycroft.conf ]] ; then
@@ -197,6 +206,9 @@ case ${_opt} in
         launch-background ${_opt}
         ;;
     "voice")
+        launch-background ${_opt}
+        ;;
+    "stt_service")
         launch-background ${_opt}
         ;;
 

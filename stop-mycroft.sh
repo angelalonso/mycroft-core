@@ -25,13 +25,14 @@ function help() {
     echo "usage: ${script} [service]"
     echo
     echo "Service:"
-    echo "  all       ends core services: bus, audio, skills, voice"
-    echo "  (none)    same as \"all\""
-    echo "  bus       stop the Mycroft messagebus service"
-    echo "  audio     stop the audio playback service"
-    echo "  skills    stop the skill service"
-    echo "  voice     stop voice capture service"
-    echo "  enclosure stop mark_1 enclosure service"
+    echo "  all         ends core services: bus, audio, skills, voice"
+    echo "  (none)      same as \"all\""
+    echo "  bus         stop the Mycroft messagebus service"
+    echo "  audio       stop the audio playback service"
+    echo "  skills      stop the skill service"
+    echo "  voice       stop voice capture service"
+    echo "  stt_service stop external access to internal STT service"
+    echo "  enclosure   stop mark_1 enclosure service"
     echo
     echo "Examples:"
     echo "  ${script}"
@@ -96,6 +97,7 @@ case ${OPT} in
         end-process skills
         end-process audio
         end-process speech
+        end-process stt_service
 
         # determine platform type
         if [[ -r /etc/mycroft/mycroft.conf ]] ; then
@@ -117,6 +119,9 @@ case ${OPT} in
         ;;
     "voice")
         end-process speech
+        ;;
+    "stt_service")
+        end-process stt_service
         ;;
     "enclosure")
         end-process enclosure
