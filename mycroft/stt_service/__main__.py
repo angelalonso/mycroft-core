@@ -5,27 +5,17 @@
 # https://stackoverflow.com/questions/35344649/reading-input-sound-signal-using-python
 import os
 import socket
-import time
-
-import scipy.io.wavfile
-import math
-
-from random import randint
-
 import pyaudio
 import wave
-
 import speech_recognition as sr
 
-from threading import Thread, Lock, Event
+from threading import Thread, Event
 from mycroft.messagebus.client.ws import WebsocketClient
 from mycroft.messagebus.message import Message
 import sys
-from os.path import exists
 from mycroft.stt import STTFactory
 from mycroft.configuration import ConfigurationManager
 from mycroft.util.log import LOG
-from os import remove
 
 ## Copied from Forslund
 ws = None
@@ -33,22 +23,19 @@ config = ConfigurationManager.get()
                                   
          
 def connect():
-    ws.run_forever()
-             
-def disconnect():
-    ws.close()
+  ws.run_forever()
              
          
 def read_wave_file(wave_file_path):
-    '''      
-    reads the wave file at provided path and return the expected
-    Audio format   
-    '''      
-    # use the audio file as the audio source
-    r = sr.Recognizer()           
-    with sr.AudioFile(wave_file_path) as source:
-        audio = r.record(source)  
-    return audio   
+  '''      
+  reads the wave file at provided path and return the expected
+  Audio format   
+  '''      
+  # use the audio file as the audio source
+  r = sr.Recognizer()           
+  with sr.AudioFile(wave_file_path) as source:
+    audio = r.record(source)  
+  return audio   
 ## End of Copied from Forslund
 
 
@@ -116,8 +103,6 @@ def transmission_end(conn, p, frames):
     file_consumer.start()         
     file_consumer.stop()          
     file_consumer.join()          
-    #while True:      
-    #  time.sleep(100)           
   except KeyboardInterrupt:         
     LOG.exception("Manual Key interruption")
     file_consumer.stop()          
@@ -146,7 +131,7 @@ class FileConsumer(Thread):
       Message("recognizer_loop:utterance", 
              {"utterances": [text]},
              {"source": "wav_client"}))
-    remove(self.path)
+    os.remove(self.path)
 
   def stop(self):
     self.stop_event.set()
