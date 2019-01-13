@@ -7,7 +7,6 @@ import os
 import socket
 import time
 
-import numpy as np
 import scipy.io.wavfile
 import math
 

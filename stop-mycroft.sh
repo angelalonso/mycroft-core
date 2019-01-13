@@ -25,7 +25,7 @@ function help() {
     echo "usage: ${script} [service]"
     echo
     echo "Service:"
-    echo "  all         ends core services: bus, audio, skills, voice"
+    echo "  all         ends core services: bus, audio, skills, voice, stt service"
     echo "  (none)      same as \"all\""
     echo "  bus         stop the Mycroft messagebus service"
     echo "  audio       stop the audio playback service"
